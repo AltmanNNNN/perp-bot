@@ -53,19 +53,19 @@
 ETH：
 
 ```bash
-python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450
+python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 -max-orders 40 --wait-time 450
 ```
 
 ETH（带网格步长控制）：
 
 ```bash
-python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450 --grid-step 0.5
+python runbot.py --exchange edgex --ticker ETH --quantity 0.2 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 30
 ```
 
 BTC：
 
 ```bash
-python runbot.py --exchange edgex --ticker BTC --quantity 0.05 --take-profit 0.02 --max-orders 40 --wait-time 450
+python runbot.py --exchange edgex --ticker BTC --quantity 0.05 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450
 ```
 
 ### Backpack 交易所：
@@ -73,13 +73,13 @@ python runbot.py --exchange edgex --ticker BTC --quantity 0.05 --take-profit 0.0
 ETH 永续合约：
 
 ```bash
-python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450
+python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450
 ```
 
 ETH 永续合约（带网格步长控制）：
 
 ```bash
-python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450 --grid-step 0.3
+python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450 --grid-step 0.3
 ```
 
 ## 配置
@@ -104,6 +104,7 @@ python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0
 - `--ticker`: 标的资产符号（例如：ETH、BTC、SOL）。合约 ID 自动解析。
 - `--quantity`: 订单数量（默认：0.1）
 - `--take-profit`: 止盈百分比（例如 0.02 表示 0.02%）
+- `--stop-loss`: 止损百分比（例如 0.1 表示 0.1%，默认：0.1）
 - `--direction`: 交易方向：'buy'或'sell'（默认：buy）
 - `--max-orders`: 最大活跃订单数（默认：40）
 - `--wait-time`: 订单间等待时间（秒）（默认：450）
@@ -111,13 +112,15 @@ python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0
 
 ## 交易策略
 
-该机器人实现了简单的剥头皮策略：
+该机器人实现了带止损的剥头皮策略：
 
 1. **订单下单**：在市场价格附近下限价单
 2. **订单监控**：等待订单成交
-3. **平仓订单**：在止盈水平自动下平仓单
+3. **双重平仓机制**：订单成交后同时设置止盈和止损订单
+   - **止盈订单**：在盈利水平自动平仓
+   - **止损订单**：在亏损达到设定水平时自动平仓
 4. **持仓管理**：监控持仓和活跃订单
-5. **风险管理**：限制最大并发订单数
+5. **风险管理**：限制最大并发订单数，通过止损控制单笔亏损
 6. **网格步长控制**：通过 `--grid-step` 参数控制新订单与现有平仓订单之间的最小价格距离
 
 ### 网格步长功能

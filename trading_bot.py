@@ -22,17 +22,24 @@ class TradingConfig:
     contract_id: str
     quantity: Decimal
     take_profit: Decimal
+    stop_loss: Decimal
     tick_size: Decimal
     direction: str
     max_orders: int
     wait_time: int
     exchange: str
     grid_step: Decimal
+    disable_stop_loss: bool = False
 
     @property
     def close_order_side(self) -> str:
         """Get the close order side based on bot direction."""
         return 'buy' if self.direction == "sell" else 'sell'
+    
+    @property
+    def stop_loss_side(self) -> str:
+        """Get the stop loss order side based on bot direction."""
+        return 'sell' if self.direction == "buy" else 'buy'
 
 
 @dataclass
@@ -221,7 +228,8 @@ class TradingBot:
 
         if self.order_filled_event.is_set():
             self.last_open_order_time = time.time()
-            # Place close order
+            
+            # Place take profit order
             close_side = self.config.close_order_side
             if close_side == 'sell':
                 close_price = filled_price * (1 + self.config.take_profit/100)
@@ -236,7 +244,27 @@ class TradingBot:
             )
 
             if not close_order_result.success:
-                self.logger.log(f"[CLOSE] Failed to place close order: {close_order_result.error_message}", "ERROR")
+                self.logger.log(f"[TAKE_PROFIT] Failed to place take profit order: {close_order_result.error_message}", "ERROR")
+            
+            # Place stop loss order (only if not disabled)
+            if not self.config.disable_stop_loss:
+                stop_loss_side = self.config.stop_loss_side
+                if stop_loss_side == 'sell':
+                    stop_loss_price = filled_price * (1 - self.config.stop_loss/100)
+                else:
+                    stop_loss_price = filled_price * (1 + self.config.stop_loss/100)
+
+                stop_loss_result = await self.exchange_client.place_close_order(
+                    self.config.contract_id,
+                    self.config.quantity,
+                    stop_loss_price,
+                    stop_loss_side
+                )
+
+                if not stop_loss_result.success:
+                    self.logger.log(f"[STOP_LOSS] Failed to place stop loss order: {stop_loss_result.error_message}", "ERROR")
+            else:
+                self.logger.log(f"[STOP_LOSS] Stop loss disabled - skipping stop loss order", "INFO")
 
             return True
 
@@ -266,6 +294,7 @@ class TradingBot:
                         self.order_filled_amount = order_info.filled_size
 
             if self.order_filled_amount > 0:
+                # Place take profit order for partial fill
                 close_side = self.config.close_order_side
                 if close_side == 'sell':
                     close_price = filled_price * (1 + self.config.take_profit/100)
@@ -278,10 +307,31 @@ class TradingBot:
                     close_price,
                     close_side
                 )
-                self.last_open_order_time = time.time()
-
+                
                 if not close_order_result.success:
-                    self.logger.log(f"[CLOSE] Failed to place close order: {close_order_result.error_message}", "ERROR")
+                    self.logger.log(f"[TAKE_PROFIT] Failed to place take profit order for partial fill: {close_order_result.error_message}", "ERROR")
+                
+                # Place stop loss order for partial fill (only if not disabled)
+                if not self.config.disable_stop_loss:
+                    stop_loss_side = self.config.stop_loss_side
+                    if stop_loss_side == 'sell':
+                        stop_loss_price = filled_price * (1 - self.config.stop_loss/100)
+                    else:
+                        stop_loss_price = filled_price * (1 + self.config.stop_loss/100)
+
+                    stop_loss_result = await self.exchange_client.place_close_order(
+                        self.config.contract_id,
+                        self.order_filled_amount,
+                        stop_loss_price,
+                        stop_loss_side
+                    )
+                    
+                    if not stop_loss_result.success:
+                        self.logger.log(f"[STOP_LOSS] Failed to place stop loss order for partial fill: {stop_loss_result.error_message}", "ERROR")
+                else:
+                    self.logger.log(f"[STOP_LOSS] Stop loss disabled - skipping stop loss order for partial fill", "INFO")
+                
+                self.last_open_order_time = time.time()
 
             return True
 
@@ -295,10 +345,16 @@ class TradingBot:
                 # Get active orders
                 active_orders = await self.exchange_client.get_active_orders(self.config.contract_id)
 
-                # Filter close orders
+                # Filter close orders (take profit and stop loss if enabled)
                 self.active_close_orders = []
                 for order in active_orders:
                     if order.side == self.config.close_order_side:
+                        self.active_close_orders.append({
+                            'id': order.order_id,
+                            'price': order.price,
+                            'size': order.size
+                        })
+                    elif not self.config.disable_stop_loss and order.side == self.config.stop_loss_side:
                         self.active_close_orders.append({
                             'id': order.order_id,
                             'price': order.price,
@@ -390,10 +446,16 @@ class TradingBot:
                 # Update active orders
                 active_orders = await self.exchange_client.get_active_orders(self.config.contract_id)
 
-                # Filter close orders
+                # Filter close orders (take profit and stop loss if enabled)
                 self.active_close_orders = []
                 for order in active_orders:
                     if order.side == self.config.close_order_side:
+                        self.active_close_orders.append({
+                            'id': order.order_id,
+                            'price': order.price,
+                            'size': order.size
+                        })
+                    elif not self.config.disable_stop_loss and order.side == self.config.stop_loss_side:
                         self.active_close_orders.append({
                             'id': order.order_id,
                             'price': order.price,

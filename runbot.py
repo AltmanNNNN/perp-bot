@@ -29,7 +29,9 @@ def parse_arguments():
     parser.add_argument('--quantity', type=Decimal, default=Decimal(0.1),
                         help='Order quantity (default: 0.1)')
     parser.add_argument('--take-profit', type=Decimal, default=Decimal(0.02),
-                        help='Take profit in USDT (default: 0.02)')
+                        help='Take profit in percentage (default: 0.02)')
+    parser.add_argument('--stop-loss', type=Decimal, default=Decimal(0.1),
+                        help='Stop loss in percentage (default: 0.1)')
     parser.add_argument('--direction', type=str, default='buy',
                         help='Direction of the bot (default: buy)')
     parser.add_argument('--max-orders', type=int, default=40,
@@ -40,6 +42,8 @@ def parse_arguments():
                         help=".env file path (default: .env)")
     parser.add_argument('--grid-step', type=str, default='-100',
                         help="The minimum distance in percentage to the next close order price (default: -100)")
+    parser.add_argument('--disable-stop-loss', action='store_true',
+                        help="Disable stop loss orders (only place take profit orders)")
 
     return parser.parse_args()
 
@@ -60,11 +64,13 @@ async def main():
         tick_size=Decimal(0),
         quantity=args.quantity,
         take_profit=args.take_profit,
+        stop_loss=args.stop_loss,
         direction=args.direction,
         max_orders=args.max_orders,
         wait_time=args.wait_time,
         exchange=args.exchange,
-        grid_step=Decimal(args.grid_step)
+        grid_step=Decimal(args.grid_step),
+        disable_stop_loss=args.disable_stop_loss
     )
 
     # Create and run the bot

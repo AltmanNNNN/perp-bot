@@ -48,19 +48,19 @@ By using my Backpack referral, you will get 30% fee rebates on all your trading 
 ETH:
 
 ```bash
-python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450
+python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450
 ```
 
 ETH (with grid step control):
 
 ```bash
-python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450 --grid-step 0.5
+python runbot.py --exchange edgex --ticker ETH --quantity 0.1 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450 --grid-step 0.5
 ```
 
 BTC:
 
 ```bash
-python runbot.py --exchange edgex --ticker BTC --quantity 0.05 --take-profit 0.02 --max-orders 40 --wait-time 450
+python runbot.py --exchange edgex --ticker BTC --quantity 0.05 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450
 ```
 
 ### Backpack Exchange:
@@ -68,13 +68,13 @@ python runbot.py --exchange edgex --ticker BTC --quantity 0.05 --take-profit 0.0
 ETH Perpetual:
 
 ```bash
-python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450
+python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450
 ```
 
 ETH Perpetual (with grid step control):
 
 ```bash
-python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --max-orders 40 --wait-time 450 --grid-step 0.3
+python runbot.py --exchange backpack --ticker ETH --quantity 0.1 --take-profit 0.02 --stop-loss 0.1 --max-orders 40 --wait-time 450 --grid-step 0.3
 ```
 
 ## Configuration

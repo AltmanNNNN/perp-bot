@@ -1,0 +1,54 @@
+{
+  // ====== EdgeX API 配置 ======
+  "edgex_base_url": "https://pro.edgex.exchange",         // EdgeX API 基础URL (生产环境)
+  "edgex_ws_url": "wss://quote.edgex.exchange",            // EdgeX WebSocket URL (实时数据)
+  "edgex_account_id": "662055685596381613",                // EdgeX 账户ID (您的账户)
+  "edgex_stark_private_key": "02402bfbc4cd47ee01d0e4a41e66fc27a3d08966ff6471fe10046e9e952ae1f4", // Stark私钥 (用于签名)
+  
+  // ====== 交易参数配置 ======
+  "trading_pair": "ETH",              // 交易对 (支持: ETH, BTC, BNB, SOL 等)
+  "grid_count": 10,                   // 网格数量 (建议范围: 5-20)
+  "grid_spacing_percent": 0.5,        // 网格间距百分比 (建议范围: 0.1-2.0)
+  "order_size": 0.02,                 // 每个网格订单大小 (ETH最小0.02, BTC最小0.001)
+  "max_position_size": 0.1,           // 最大持仓限制 (防止过度风险)
+  
+  // ====== 风险控制配置 ======
+  "price_range_percent": 5.0,         // 网格价格范围百分比 (当前价格±5%)
+  "stop_loss_percent": 10.0,          // 止损百分比 (功能待实现)
+  
+  // ====== 运行参数配置 ======
+  "check_interval": 5,                // 检查间隔秒数 (建议范围: 3-30秒)
+  "max_retries": 3,                   // 最大重试次数 (网络异常时)
+  "auto_restart": true,               // 自动重启开关 (遇到异常自动恢复)
+  
+  // ====== 日志配置 ======
+  "log_level": "INFO",                // 日志级别 (DEBUG/INFO/WARNING/ERROR)
+  "log_to_file": true                 // 是否记录到文件 (推荐开启)
+}
+
+/*
+配置参数详细说明：
+
+1. 交易对设置：
+   - ETH: 以太坊，最小订单0.02
+   - BTC: 比特币，最小订单0.001  
+   - 其他币种请查看EdgeX支持列表
+
+2. 网格参数调优：
+   - 保守型: grid_count=8, grid_spacing_percent=0.8, order_size=0.02
+   - 平衡型: grid_count=10, grid_spacing_percent=0.5, order_size=0.02
+   - 激进型: grid_count=15, grid_spacing_percent=0.3, order_size=0.05
+
+3. 风险控制建议：
+   - 新手建议: max_position_size=0.1, price_range_percent=3.0
+   - 有经验: max_position_size=0.2, price_range_percent=5.0
+
+4. 运行环境：
+   - 稳定网络: check_interval=5, max_retries=3
+   - 不稳定网络: check_interval=10, max_retries=5
+
+5. 日志设置：
+   - 开发调试: log_level="DEBUG"
+   - 正常运行: log_level="INFO"
+   - 生产环境: log_level="WARNING"
+*/

@@ -1,0 +1,18 @@
+{
+  "edgex_base_url": "https://pro.edgex.exchange",
+  "edgex_ws_url": "wss://quote.edgex.exchange",
+  "edgex_account_id": "662055685596381613",
+  "edgex_stark_private_key": "02402bfbc4cd47ee01d0e4a41e66fc27a3d08966ff6471fe10046e9e952ae1f4",
+  "trading_pair": "ETH",
+  "grid_count": 10,
+  "grid_spacing_percent": 0.5,
+  "order_size": 0.02,
+  "max_position_size": 0.1,
+  "price_range_percent": 5.0,
+  "stop_loss_percent": 10.0,
+  "check_interval": 5,
+  "max_retries": 3,
+  "auto_restart": true,
+  "log_level": "INFO",
+  "log_to_file": true
+}

@@ -1,0 +1,7 @@
+# EdgeX 网格交易机器人依赖包
+
+# 注意：EdgeX Python SDK 需要先安装
+# cd ../edgex-python-sdk && pip install -e .
+
+# 所有必需的依赖都已包含在 EdgeX Python SDK 中
+# 无需额外安装其他包
